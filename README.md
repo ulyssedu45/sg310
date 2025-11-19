@@ -57,7 +57,7 @@ Pour configurer et compiler coreboot pour le SG310/SG330/XG310/XG330 Rev 2, veui
 2. Copier les fichiers du mainboard dans l'arborescence coreboot :
 
 ```bash
-cp -r chemin/vers/SG310/SG330/XG310/XG330r2 src/mainboard/sophos/
+cp -r chemin/vers/sg310r2 src/mainboard/sophos/
 ```
 
 3. Lors de la configuration (`make menuconfig`), sélectionner :
@@ -194,7 +194,7 @@ To configure and compile coreboot for the SG310/SG330/XG310/XG330 Rev 2, please 
 2. Copy the mainboard files into the coreboot tree:
 
 ```bash
-cp -r path/to/SG310/SG330/XG310/XG330r2 src/mainboard/sophos/
+cp -r path/to/sg310r2 src/mainboard/sophos/
 ```
 
 3. During configuration (`make menuconfig`), select:
