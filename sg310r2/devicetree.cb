@@ -1,0 +1,196 @@
+chip soc/intel/skylake
+	register "eist_enable" = "true"  # SpeedStep OK (économie énergie idle)
+
+	register "s0ix_enable" = "false"  # Pas de Modern Standby sur firewall
+
+	register "gpe0_dw0" = "GPP_G"
+	register "gpe0_dw1" = "GPP_D"
+	register "gpe0_dw2" = "GPP_E"
+
+	#Firewall appliance : pas besoin de DPTF complexe Le NCT6779D + thermal zones ACPI de base suffisent 
+	register "dptf_enable" = "false"
+
+	# Marge de sécurité thermique : throttle 5°C avant Tj Max
+	register "tcc_offset" = "5"
+
+	# FSP Configuration 
+	register "SendVrMbxCmd" = "2"
+	
+	device domain 0 on
+		device ref system_agent	on end
+		device ref peg0 on
+			register "Peg0MaxLinkWidth" = "Peg0_x8"
+		end
+		device ref igpu on end
+		device ref sa_thermal on end
+		device ref south_xhci on
+			register "usb2_ports" = "{
+				[0]  = USB2_PORT_MID(OC_SKIP),
+				[1]  = USB2_PORT_MID(OC_SKIP),
+				[2]  = USB2_PORT_MID(OC_SKIP),
+				[3]  = USB2_PORT_MID(OC_SKIP),
+				[4]  = USB2_PORT_MID(OC_SKIP),
+				[5]  = USB2_PORT_MID(OC_SKIP),
+				[6]  = USB2_PORT_MID(OC_SKIP),
+				[7]  = USB2_PORT_MID(OC_SKIP),
+				[8]  = USB2_PORT_MID(OC_SKIP),
+				[9]  = USB2_PORT_MID(OC_SKIP),
+				[10]  = USB2_PORT_MID(OC_SKIP),
+				[11]  = USB2_PORT_MID(OC_SKIP),
+				[12]  = USB2_PORT_MID(OC_SKIP),
+				[13]  = USB2_PORT_MID(OC_SKIP),
+			}"
+			register "usb3_ports" = "{
+				[0] = USB3_PORT_DEFAULT(OC_SKIP),
+				[1] = USB3_PORT_DEFAULT(OC_SKIP),
+				[2] = USB3_PORT_DEFAULT(OC_SKIP),
+				[3] = USB3_PORT_DEFAULT(OC_SKIP),
+				[4] = USB3_PORT_DEFAULT(OC_SKIP),
+				[5] = USB3_PORT_DEFAULT(OC_SKIP),
+				[6] = USB3_PORT_DEFAULT(OC_SKIP),
+				[7] = USB3_PORT_DEFAULT(OC_SKIP),
+				[8] = USB3_PORT_DEFAULT(OC_SKIP),
+				[9] = USB3_PORT_DEFAULT(OC_SKIP),
+			}"
+		end
+		device ref thermal on end
+		
+		# HECI/CSME et dépendances
+		device ref heci1 off end
+		
+		device ref sata on
+			register "SataPortsEnable" = "{
+				[0] = 1,
+				[1] = 0,
+				[2] = 0,
+				[3] = 0,
+			}"
+		end
+		
+		device ref pcie_rp1 on end
+		device ref pcie_rp2 on end
+		device ref pcie_rp3 on end
+		device ref pcie_rp4 on end
+		device ref pcie_rp5 on end
+		device ref pcie_rp6 on end
+		device ref pcie_rp7 on end
+		device ref pcie_rp8 on end
+		device ref pcie_rp9 off end
+		device ref pcie_rp10 off end
+		device ref pcie_rp11 on end	
+		device ref pcie_rp12 on end	
+		device ref pcie_rp13 on end	
+		device ref pcie_rp14 off end	
+		device ref pcie_rp15 off end	
+		device ref pcie_rp16 off end	
+		device ref pcie_rp17 off end	
+		device ref pcie_rp18 off end	
+		device ref pcie_rp19 off end	
+		device ref pcie_rp20 off end	
+		
+		device ref lpc_espi	on
+			# Set @0xa30-0xa3f and @0xa40-0xa4f I/O Range for SuperIO HWM
+			register "gen1_dec" = "0x000c0a31"  # 0xa30-0xa3f (16 bytes)
+			
+			register "serirq_mode" = "SERIRQ_CONTINUOUS"
+
+			chip superio/nuvoton/nct6779d
+				device pnp 2e.1   off end
+				device pnp 2e.2   on
+					io  0x60 = 0x3f8
+					irq 0x70 = 4
+				end
+				device pnp 2e.3   on
+					io  0x60 = 0x2f8
+					irq 0x70 = 3
+				end
+				device pnp 2e.5   on
+					io  0x60 = 0x0060
+					io  0x62 = 0x0064
+					irq 0x70 = 1
+					irq 0x72 = 0x0c
+					drq 0xf0 = 0x83
+				end
+				device pnp 2e.6   off end
+				device pnp 2e.7   off 		# GPIOs 6-8
+					drq 0xe0 = 0x63
+					drq 0xe1 = 0x04
+					drq 0xe5 = 0xff
+					drq 0xe6 = 0xff
+					drq 0xed = 0xff
+					drq 0xf4 = 0x00
+					drq 0xf5 = 0xff
+				end
+				device pnp 2e.8   off 		# WDT1 GPIO 0-1
+					drq 0xf5 = 0xff
+					drq 0xf7 = 0xff
+				end
+				device pnp 2e.108 on 		# GPIO0
+					io 0x60 = 0xa00
+					drq 0xe0 = 0x8c
+					drq 0xe1 = 0x88
+					drq 0xf1 = 0xff
+					drq 0xf2 = 0xff
+					drq 0xf4 = 0xff
+				end
+				device pnp 2e.9 off end		# GPIO8
+				device pnp 2e.109 off end	# GPIO1
+				device pnp 2e.209 on		# GPIO2
+					drq 0xe0 = 0xcf
+					drq 0xe1 = 0xe0
+				end
+				device pnp 2e.309 on		# GPIO3
+					drq 0xe4 = 0x4f
+					drq 0xe5 = 0x40
+				end
+				device pnp 2e.409 on 		# GPIO4
+					drq 0xf0 = 0xe7
+					drq 0xf1 = 0x7a
+				end
+				device pnp 2e.509 off 		# GPIO5
+					drq 0xeb = 0xff
+					drq 0xf5 = 0xff
+					drq 0xf6 = 0xff
+				end
+				device pnp 2e.609 on end	# GPIO6
+				device pnp 2e.709 on end	# GPIO7
+				device pnp 2e.a   on  		# ACPI
+					drq 0xe4 = 0x28
+					drq 0xe6 = 0x5c
+					drq 0xe7 = 0x01
+					drq 0xe9 = 0x02
+					drq 0xf0 = 0x00
+					drq 0xf2 = 0x5d
+					drq 0xf3 = 0x30
+					drq 0xf6 = 0x30
+					drq 0xf7 = 0x00
+				end
+				device pnp 2e.b   on 		# H/W Monitor, FP LED
+					io 0x60 = 0xa30
+					io 0x62 = 0xa40
+					irq 0x70 = 0
+					drq 0xe2 = 0x7f
+					drq 0xe4 = 0x7f
+					drq 0xf5 = 0x00
+				end
+				device pnp 2e.d off end		# WDT1
+				device pnp 2e.e off end 	# CIR wake-up
+				device pnp 2e.f on 
+					drq 0xe1 = 0xef
+					drq 0xe2 = 0x0f
+					drq 0xe3 = 0xfc
+					drq 0xe6 = 0x79
+					drq 0xe9 = 0x00
+				end
+				device pnp 2e.14 on		# Port 80 UART
+					drq 0xe4 = 0xa0
+				end
+				device pnp 2e.16 on end		# Deep sleep
+			end
+		end
+		device ref pmc on end
+		device ref hda off end
+		device ref smbus on end
+		device ref gbe off end
+	end
+end

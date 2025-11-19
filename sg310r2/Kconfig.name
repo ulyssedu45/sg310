@@ -1,0 +1,13 @@
+# SPDX-License-Identifier: GPL-2.0-only
+
+config BOARD_SOPHOS_SG310_REV2
+	bool "SG310 Rev 2"
+
+config BOARD_SOPHOS_SG330_REV2
+	bool "SG330 Rev 2"
+
+config BOARD_SOPHOS_XG310_REV2
+	bool "XG310 Rev 2"
+
+config BOARD_SOPHOS_XG330_REV2
+	bool "XG330 Rev 2"
